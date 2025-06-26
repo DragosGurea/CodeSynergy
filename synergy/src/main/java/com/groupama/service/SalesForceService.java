@@ -1,18 +1,25 @@
 package com.groupama.service;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.groupama.domain.AuthResponse;
 import com.squareup.okhttp.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SalesForceService {
 
-    public static String getToken() throws IOException {
-        String url = "https://groupama--hackathon.sandbox.my.salesforce.com";
-        String clientId = "3MVG9U70RXTP1vq98iY3iYRIvUqKxLlVcPM9x0XAKdbcWEPVZ.5WhLR35WrdV6n6FbtiZ5FTo_gKL66vThpdf";
-        String clientSecret = "58227DF676C9C6F28445BF33E8F00054327C967A54182D24D992C1EE50F3A900";
-        String grantType = "client_credentials";
-        String username = "integration.application@groupama.ro.hackathon";
-        String password = "Groupama-2019";
+    static String url = "https://groupama--hackathon.sandbox.my.salesforce.com";
+    static String clientId = "3MVG9U70RXTP1vq98iY3iYRIvUqKxLlVcPM9x0XAKdbcWEPVZ.5WhLR35WrdV6n6FbtiZ5FTo_gKL66vThpdf";
+    static String clientSecret = "58227DF676C9C6F28445BF33E8F00054327C967A54182D24D992C1EE50F3A900";
+    static String username = "integration.application@groupama.ro.hackathon";
+    static String password = "Groupama-2019";
+
+    public static AuthResponse doAuth() throws IOException {
 
         // Create an OkHttpClient instance
         OkHttpClient client = new OkHttpClient();
@@ -36,18 +43,45 @@ public class SalesForceService {
        Response response = client.newCall(request).execute() ;
 
        try(ResponseBody responseBody = response.body()) {
-           return responseBody.string();
+           XmlMapper xmlMapper = new XmlMapper();
+           return xmlMapper.readValue(responseBody.string(), AuthResponse.class);
        }catch (IOException e) {
-           e.printStackTrace();
+           Logger.getLogger("SalesForceService").
+                   log(Level.WARNING, "Error on do auth file " + e.getMessage());
            throw new RuntimeException(e);
        }
     }
 
-    public static void main(String[] args) {
-        try {
-            System.out.println(getToken());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    public static byte[] loadFile(String token,String fileId) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Loading file {0}", fileId);
+
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = RequestBody.create(mediaType, "");
+
+        Request request = new Request.Builder()
+                .url( url + "/services/data/v59.0/sobjects/ContentVersion/"+fileId+"/VersionData")
+                .method("GET",null)
+                .addHeader("Authorization", "Bearer "+token)
+                .addHeader("Cookie", "BrowserId=ppKAWE2rEe-F4QGRHL6PRg; CookieConsentPolicy=0:1; LSKey-c$CookieConsentPolicy=0:1")
+                .build();
+
+        Response response = client.newCall(request).execute();
+
+        if( response.isSuccessful() ) {
+            return response.body().bytes();
         }
+        else{
+            Logger.getLogger("SalesForceService").
+                    log(Level.WARNING, "Error loading file "+fileId + "Response "+response.body().string());
+            return null;
+        }
+    }
+
+    public static void main(String[] args) throws IOException, JsonMappingException {
+        String fileId = "068KO000000xAZ3YAM";
+        String token = SalesForceService.doAuth().getAccessToken();
+        byte[] file = loadFile(token,fileId);
+        Files.write(new File("test.jpg").toPath(), file);
     }
 }

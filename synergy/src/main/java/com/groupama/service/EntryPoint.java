@@ -1,5 +1,6 @@
 package com.groupama.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
 import com.google.cloud.functions.HttpResponse;
@@ -9,26 +10,46 @@ import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
 import com.google.cloud.vertexai.generativeai.ResponseHandler;
+import com.groupama.domain.FilesRequest;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EntryPoint implements HttpFunction {
 
+    static String projectId = "prj-hackathon-team4";
+    static String location = "europe-west3";
+    static String modelName = "gemini-1.5-pro";
+    static ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void service(HttpRequest request, HttpResponse response) throws Exception {
-        // TODO(developer): Replace these variables before running the sample.
-        String projectId = "prj-hackathon-team4";
-        String location = "europe-west3";
-        String modelName = "gemini-1.5-pro";
 
-        String output =  sendPromt(projectId, location, modelName);
-
-        response.getWriter().write(output);
+        if( request.getMethod().equals("POST") ) {
+            FilesRequest filesRequest = objectMapper.readValue(request.getInputStream(), FilesRequest.class);
+            String vertexResponse = processRequest(filesRequest);
+            response.getWriter().write(vertexResponse);
+        }
+        else {
+            response.getWriter().write("Method not supported");
+        }
     }
 
     // Analyzes the given video input, including its audio track.
-    public static String sendPromt(String projectId, String location, String modelName)
+    public static String processRequest(FilesRequest filesRequest)
             throws IOException {
+
+        Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Files request received ");
+        String token = SalesForceService.doAuth().getAccessToken();
+
+        for(String fileId : filesRequest.getFilesIds()) {
+            byte[] fileData = SalesForceService.loadFile(token,fileId);
+            Files.write(new File("test.jpg").toPath(), fileData);
+        }
+
         // Initialize client that will be used to send requests. This client only needs
         // to be created once, and can be reused for multiple requests.
         try (VertexAI vertexAI = new VertexAI(projectId, location)) {
