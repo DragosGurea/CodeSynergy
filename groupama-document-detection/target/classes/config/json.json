@@ -1,0 +1,62 @@
+{
+  "objectId": "0ewqewq",
+  "extracted_documents": [
+    {
+      "salesforce_id": "",
+      "document_type": "Rezultat investigatii medicale",
+      "data_extracted": {
+        "document_issuer_name": "MEMORIAL",
+        "insured_name": "ZAMFIR CATALIN DANIEL",
+        "insured_cnp": "1790623463025",
+        "diagnostic": "POLIP DISPLAZIC SESIL DE RECT SUPERIOR (JRS) - REZECAT DUPA INJECTARE SI RECUPERAT",
+        "document_issue_date": "22.05.2025",
+        "document_issuer_signature": true,
+        "document_issuer_stamp": true,
+        "validation_results": {
+          "insured_name_matches_salesforce": false,
+          "cnp_matches_salesforce": false,
+          "cnp_matches_form": true,
+          "iban_matches_salesforce": false,
+          "event_date_matches_salesforce": false,
+          "has_general_service_description": true,
+          "data_matches_medical_report": false,
+          "data_matches_payment_document": false,
+          "validation_errors": []
+        }
+      }
+    },
+    {
+      "salesforce_id": "",
+      "document_type": "Identity document",
+      "data_extracted": {
+        "insured_name": "ZAMFIR CATALIN-DANIEL",
+        "insured_cnp": "1790623463025",
+        "expiration_date": "23.08.2027",
+        "validation_results": {
+          "insured_name_matches_salesforce": false,
+          "cnp_matches_salesforce": false,
+          "cnp_matches_form": true,
+          "validation_errors": []
+        }
+      }
+    },
+    {
+      "salesforce_id": "",
+      "document_type": "Factura",
+      "data_extracted": {
+        "service_name": "Pachet Screening Complet",
+        "document_date": "22.05.2025",
+        "validation_results": {
+          "has_general_service_description": true,
+          "payment_date_matches_salesforce": false,
+          "data_matches_payment_document": false,
+          "validation_errors": []
+        }
+      }
+    }
+  ],
+  "missing_documents": [
+    "Groupama_formular.jpg"
+  ],
+  "email_body": ""
+}

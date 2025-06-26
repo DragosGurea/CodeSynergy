@@ -1,0 +1,128 @@
+{
+    "extracted_documents": [
+        {
+            "salesforce_id" : "string",
+            "document_type": ["Polita"],
+            "data_extracted" : {
+                "document_issuer_name": "string",
+                "insured_name": "string",
+                "insured_cnp": "string",
+                "diagnostic": "string",
+				"policy_expiration_date": "date(DD.MM.YYYY)",
+				"policy_number": "string",
+				"vin_number": "string",
+                "validation_results": {
+                    "insured_name_matches_salesforce": "boolean",
+                    "insured_cnp_matches_salesforce": "boolean",
+                    "event_date_matches_salesforce": "boolean",
+					"vin_number_matches_salesforce": "boolean",
+					"policy_number_matches_salesforce": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string"}
+                    ]
+                }
+            }
+        },
+        {   
+            "salesforce_id" : "string",
+            "document_type": ["Certificatului de radiere"],
+            "data_extracted" : {
+                "insured_name": "string",
+                "insured_cnp": "string",
+				"vin_number": "string",
+				"document_issuer_name": "string",
+				"document_number": "string",
+				"document_issue_date": "date(DD.MM.YYYY)",
+				"document_issuer_stamp": "boolean",
+				"document_issuer_signature": "boolean",
+				"insured_signature": "boolean",
+                "validation_results": {
+                    "insured_name_matches_salesforce": "boolean",
+                    "insured_cnp_matches_salesforce": "boolean",
+					"vin_number_matches_salesforce": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string" }
+                    ]
+                }
+            }
+        },
+        {   
+            "salesforce_id" : "string",
+            "document_type": ["PV", "scoatere din evidenta"],
+            "data_extracted" : {
+                "insured_name": "string",
+				"vin_number": "string",
+				"document_issuer_name": "string",
+				"document_issue_date": "date(DD.MM.YYYY)",
+				"document_issuer_stamp": "boolean",
+				"document_issuer_signature": "boolean",
+				"document_number": "string",
+                "validation_results": {
+                    "insured_name_matches_salesforce": "boolean",
+                    "insured_cnp_matches_salesforce": "boolean",
+					"vin_number_matches_salesforce": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string" }
+                    ]
+                }
+            }
+        },
+		{   
+            "salesforce_id" : "string",
+            "document_type": ["Identity document", "Certificat de nastere"],
+            "data_extracted" : {
+                "insured_name": "string",
+                "insured_cnp": "string",
+                "expiration_date": "date(DD.MM.YYYY)",
+                "validation_results": {
+                    "insured_name_matches_salesforce": "boolean",
+                    "cnp_matches_salesforce": "boolean",
+                    "cnp_matches_form": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string" }
+                    ]
+                }
+            }
+        },
+		{
+            "salesforce_id" : "string",
+            "document_type": ["Extras bancar", "Bank statement"],
+            "data_extracted" : {
+                "iban_holder_name": "date(DD.MM.YYYY)",
+				"iban_number": "string",
+                "validation_results": {
+                    "iban_holder_name_matches_salesforce": "boolean",
+                    "iban_number_matches_salesforce": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string"}
+                    ]
+                }
+            }
+        },
+		{
+            "salesforce_id" : "string",
+            "document_type": ["Declaratie acord titular"],
+            "data_extracted" : {
+				"insured_name": "string",
+                "insured_cnp": "string",
+                "iban_holder_name": "date(DD.MM.YYYY)",
+				"iban_number": "string",
+				"policy_number": "string",
+				"document_issue_date": "date(DD.MM.YYYY)",
+				"insured_signature": "boolean",
+                "validation_results": {
+					"insured_name_matches_salesforce": "string",
+					"insured_cnp_matches_salesforce": "string",
+					"iban_holder_name_matches_salesforce": "string",
+                	"iban_number_matches_salesforce": "string",
+					"policy_number_name_matches_salesforce": "string",
+                    "validation_errors": [
+                        { "error_name": "string"}
+                    ]
+                }
+            }
+        }
+    ],
+    "missing_documents": ["string"],
+    "email_body": "string"
+}
