@@ -10,11 +10,11 @@ import com.google.cloud.vertexai.generativeai.ContentMaker;
 import com.google.cloud.vertexai.generativeai.GenerativeModel;
 import com.google.cloud.vertexai.generativeai.PartMaker;
 import com.google.cloud.vertexai.generativeai.ResponseHandler;
-import com.groupama.domain.FilesRequest;
+import com.groupama.domain.SalesForceFilesRequest;
+import com.groupama.domain.SalesForceFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,7 +29,7 @@ public class EntryPoint implements HttpFunction {
     public void service(HttpRequest request, HttpResponse response) throws Exception {
 
         if( request.getMethod().equals("POST") ) {
-            FilesRequest filesRequest = objectMapper.readValue(request.getInputStream(), FilesRequest.class);
+            SalesForceFilesRequest filesRequest = objectMapper.readValue(request.getInputStream(), SalesForceFilesRequest.class);
             String vertexResponse = processRequest(filesRequest);
             response.getWriter().write(vertexResponse);
         }
@@ -38,35 +38,36 @@ public class EntryPoint implements HttpFunction {
         }
     }
 
-    // Analyzes the given video input, including its audio track.
-    public static String processRequest(FilesRequest filesRequest)
+    public static String processRequest(SalesForceFilesRequest filesRequest)
             throws IOException {
 
         Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Files request received ");
         String token = SalesForceService.doAuth().getAccessToken();
 
-        for(String fileId : filesRequest.getFilesIds()) {
-            byte[] fileData = SalesForceService.loadFile(token,fileId);
-            Files.write(new File("test.jpg").toPath(), fileData);
+        Object[] parts = new Object[filesRequest.getFiles().size() + 1];
+        parts[0] = filesRequest.getPrompt() + " "+ filesRequest.getExpectedFormat();
+
+        for(int i = 0; i < filesRequest.getFiles().size(); i++) {
+            SalesForceFile salesForceFile = filesRequest.getFiles().get(i);
+
+            byte[] fileData = SalesForceService.loadFile(token,salesForceFile.getId());
+            String mimeType = URLConnection.guessContentTypeFromName(salesForceFile.getName());
+
+            if( fileData != null) {
+                parts[i+1] =  PartMaker.fromMimeTypeAndData(mimeType, fileData);
+            }
         }
 
-        // Initialize client that will be used to send requests. This client only needs
-        // to be created once, and can be reused for multiple requests.
+        Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Sending data to vertex ai");
+
         try (VertexAI vertexAI = new VertexAI(projectId, location)) {
-            String videoUri = "gs://cloud-samples-data/generative-ai/video/pixel8.mp4";
-
             GenerativeModel model = new GenerativeModel(modelName, vertexAI);
-            GenerateContentResponse response = model.generateContent(
-                    ContentMaker.fromMultiModalData(
-                            "Provide a description of the video.\n The description should also "
-                                    + "contain anything important which people say in the video.",
-                            PartMaker.fromMimeTypeAndData("video/mp4", videoUri)
-                    ));
-
-            String output = ResponseHandler.getText(response);
-            System.out.println(output);
-
-            return output;
+            GenerateContentResponse response = model.generateContent(ContentMaker.fromMultiModalData(parts));
+            return ResponseHandler.getText(response);
+        }
+        catch (Exception ex) {
+            Logger.getLogger(EntryPoint.class.getName()).log(Level.SEVERE, null, ex);
+            return ex.getMessage();
         }
     }
 }

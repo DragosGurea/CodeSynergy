@@ -5,9 +5,8 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.groupama.domain.AuthResponse;
 import com.squareup.okhttp.*;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.net.URLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,61 +26,62 @@ public class SalesForceService {
         // Create a request
         RequestBody body = RequestBody.
                 create(MediaType.parse("application/x-www-form-urlencoded"),
-                        "grant_type=password&client_id="+
-                                clientId+"&client_secret="
-                                +clientSecret+"&username="+
-                                username+"&password=" + password);
+                        "grant_type=password&client_id=" +
+                                clientId + "&client_secret="
+                                + clientSecret + "&username=" +
+                                username + "&password=" + password);
 
         Request request = new Request.Builder()
-                .url( url + "/services/oauth2/token")
+                .url(url + "/services/oauth2/token")
                 .method("POST", body)
                 .addHeader("X-PrettyPrint", "1")
                 .addHeader("Accept", "application/xml")
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .build();
 
-       Response response = client.newCall(request).execute() ;
+        Response response = client.newCall(request).execute();
 
-       try(ResponseBody responseBody = response.body()) {
-           XmlMapper xmlMapper = new XmlMapper();
-           return xmlMapper.readValue(responseBody.string(), AuthResponse.class);
-       }catch (IOException e) {
-           Logger.getLogger("SalesForceService").
-                   log(Level.WARNING, "Error on do auth file " + e.getMessage());
-           throw new RuntimeException(e);
-       }
+        try (ResponseBody responseBody = response.body()) {
+            XmlMapper xmlMapper = new XmlMapper();
+            return xmlMapper.readValue(responseBody.string(), AuthResponse.class);
+        } catch (IOException e) {
+            Logger.getLogger("SalesForceService").
+                    log(Level.WARNING, "Error on do auth file " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
-    public static byte[] loadFile(String token,String fileId) throws IOException {
+    public static byte[] loadFile(String token, String fileId) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Loading file {0}", fileId);
 
-        MediaType mediaType = MediaType.parse("text/plain");
-        RequestBody body = RequestBody.create(mediaType, "");
-
         Request request = new Request.Builder()
-                .url( url + "/services/data/v59.0/sobjects/ContentVersion/"+fileId+"/VersionData")
-                .method("GET",null)
-                .addHeader("Authorization", "Bearer "+token)
+                .url(url + "/services/data/v59.0/sobjects/ContentVersion/" + fileId + "/VersionData")
+                .method("GET", null)
+                .addHeader("Authorization", "Bearer " + token)
                 .addHeader("Cookie", "BrowserId=ppKAWE2rEe-F4QGRHL6PRg; CookieConsentPolicy=0:1; LSKey-c$CookieConsentPolicy=0:1")
                 .build();
 
         Response response = client.newCall(request).execute();
 
-        if( response.isSuccessful() ) {
+        if (response.isSuccessful()) {
+            Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Loading file {0} done", fileId);
             return response.body().bytes();
-        }
-        else{
+        } else {
             Logger.getLogger("SalesForceService").
-                    log(Level.WARNING, "Error loading file "+fileId + "Response "+response.body().string());
+                    log(Level.WARNING, "Error loading file " + fileId + "Response " + response.body().string());
             return null;
         }
     }
 
     public static void main(String[] args) throws IOException, JsonMappingException {
-        String fileId = "068KO000000xAZ3YAM";
-        String token = SalesForceService.doAuth().getAccessToken();
-        byte[] file = loadFile(token,fileId);
-        Files.write(new File("test.jpg").toPath(), file);
+//        String fileId = "068KO000000xAZ3YAM";
+//        String token = SalesForceService.doAuth().getAccessToken();
+//        byte[] file = loadFile(token,fileId);
+//        Files.write(new File("test.jpg").toPath(), file);
+
+
+        String mimeType = URLConnection.guessContentTypeFromName("test.jpg");
+        System.out.println(mimeType);
     }
 }
