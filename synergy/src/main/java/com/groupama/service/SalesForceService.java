@@ -7,6 +7,8 @@ import com.squareup.okhttp.*;
 
 import java.io.IOException;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,7 +45,9 @@ public class SalesForceService {
 
         try (ResponseBody responseBody = response.body()) {
             XmlMapper xmlMapper = new XmlMapper();
-            return xmlMapper.readValue(responseBody.string(), AuthResponse.class);
+            AuthResponse authResponse =  xmlMapper.readValue(responseBody.string(), AuthResponse.class);
+            Logger.getLogger(SalesForceService.class.getName()).log(Level.INFO, "AUth token " + authResponse.getAccessToken());
+            return authResponse;
         } catch (IOException e) {
             Logger.getLogger("SalesForceService").
                     log(Level.WARNING, "Error on do auth file " + e.getMessage());
@@ -51,9 +55,9 @@ public class SalesForceService {
         }
     }
 
-    public static byte[] loadFile(String token, String fileId) throws IOException {
+    public static byte[] loadFile(String token, String fileId,String name) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Loading file {0}", fileId);
+        Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Loading file: " + fileId);
 
         Request request = new Request.Builder()
                 .url(url + "/services/data/v59.0/sobjects/ContentVersion/" + fileId + "/VersionData")
@@ -65,8 +69,10 @@ public class SalesForceService {
         Response response = client.newCall(request).execute();
 
         if (response.isSuccessful()) {
-            Logger.getLogger(EntryPoint.class.getName()).log(Level.INFO, "Loading file {0} done", fileId);
-            return response.body().bytes();
+            byte[] data = response.body().bytes();
+//            Files.write(new File(name).toPath(), data);
+            Logger.getLogger(SalesForceService.class.getName()).log(Level.INFO, "Loading file  done: Size: " + data.length);
+            return data;
         } else {
             Logger.getLogger("SalesForceService").
                     log(Level.WARNING, "Error loading file " + fileId + "Response " + response.body().string());
