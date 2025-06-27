@@ -1,0 +1,65 @@
+{
+    "extracted_documents": [
+        {
+            "salesforce_id" : "string",
+            "document_type": ["Recomandare medicala", "investigatii medicale", "Rezultat investigatii medicale", "Fisa externare"],
+            "data_extracted" : {
+                "document_issuer_name": "string",
+                "insured_name": "string",
+                "insured_cnp": "string",
+                "diagnostic": "string",
+                "document_issue_date": "date(DD.MM.YYYY)",
+                "document_issuer_signature": "boolean",
+                "document_issuer_stamp": "boolean",
+                "validation_results": {
+                    "insured_name_matches_salesforce": "boolean",
+                    "cnp_matches_salesforce": "boolean",
+                    "cnp_matches_form": "boolean",
+                    "iban_matches_salesforce": "boolean",
+                    "event_date_matches_salesforce": "boolean",
+                    "has_general_service_description": "boolean",
+                    "data_matches_medical_report": "boolean",
+                    "data_matches_payment_document": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string"}
+                    ]
+                }
+            }
+        },
+        {   
+            "salesforce_id" : "string",
+            "document_type": ["Identity document", "Certificat de nastere"],
+            "data_extracted" : {
+                "insured_name": "string",
+                "insured_cnp": "string",
+                "expiration_date": "date(DD.MM.YYYY)",
+                "validation_results": {
+                    "insured_name_matches_salesforce": "boolean",
+                    "cnp_matches_salesforce": "boolean",
+                    "cnp_matches_form": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string" }
+                    ]
+                }
+            }
+        },
+        {
+            "salesforce_id" : "string",
+            "document_type": ["Bon", "Bon fiscal", "Chitanta", "Factura"],
+            "data_extracted" : {
+                "service_name": "string",
+                "document_date": "date(DD.MM.YYYY)",
+                "validation_results": {
+                    "has_general_service_description": "boolean",
+                    "payment_date_matches_salesforce": "boolean",
+                    "data_matches_payment_document": "boolean",
+                    "validation_errors": [
+                        { "error_name": "string"}
+                    ]
+                }
+            }
+        }
+    ],
+    "missing_documents": ["string"],
+    "email_body": "string"
+}
